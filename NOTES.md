@@ -5,116 +5,92 @@ This document serves as a living record of notes, observations, and documentatio
 
 ## Table of Contents
 1. [General Notes](#general-notes)
-2. [Important References](#important-references)
-3. [Updates Log](#updates-log)
-4. [Invoice Generator Structure](#invoice-generator-structure)
+2. [Project Structure](#project-structure)
+3. [Technology Stack](#technology-stack)
+4. [Updates Log](#updates-log)
 
 ## General Notes
 - Created repository on: April 1, 2025
+- Using Lynx framework for cross-platform UI development
+- SQLite for local database storage
 
-## Important References
-### Invoice Generation Resources
-1. [Nayan-Shrivastava/invoice-generator](https://github.com/Nayan-Shrivastava/invoice-generator)
-   - Node.js/Express based solution
-   - Features:
-     - PDF generation using html-pdf
-     - Email sending via SendGrid
-     - User authentication
-     - MongoDB database
-     - EJS templating
-
-## Invoice Generator Structure
-### Project Architecture
+## Project Structure
 ```
-invoice-generator/
-├── src/                      # Source code directory
-│   ├── index.js             # Application entry point
-│   ├── app.js               # Express app configuration
-│   ├── models/              # Database models
-│   │   ├── user.js         # User model (authentication)
-│   │   └── invoice.js      # Invoice model
-│   ├── middleware/          # Custom middleware
-│   │   ├── auth.js         # Authentication middleware
-│   │   └── roles.js        # Role-based access control
-│   ├── routes/             # API routes
-│   │   ├── user.js         # User management routes
-│   │   └── invoice.js      # Invoice operations routes
-│   ├── templates/          # PDF and email templates
-│   │   ├── invoice.ejs     # Invoice PDF template
-│   │   └── email.ejs       # Email body template
+invoice-app/
+├── src/
+│   ├── components/           # Lynx UI components
+│   │   ├── Invoice/         # Invoice related components
+│   │   ├── Customer/        # Customer management components
+│   │   └── common/         # Shared UI components
+│   ├── database/
+│   │   ├── schema.sql      # SQLite database schema
+│   │   └── db.js           # Database operations
+│   ├── services/
+│   │   ├── pdf.js          # PDF generation service
+│   │   └── email.js        # Email service
+│   ├── styles/             # Lynx styles and themes
 │   └── utils/              # Utility functions
-│       ├── pdf.js          # PDF generation logic
-│       └── email.js        # Email sending logic
-├── config/                  # Configuration files
-│   └── dev.env             # Environment variables
-└── package.json            # Project dependencies
+├── public/                 # Static assets
+├── database.sqlite         # SQLite database file
+└── package.json           # Project dependencies
 ```
 
-### Key Components Breakdown
+## Technology Stack
+1. **Frontend Framework**
+   - Lynx (v3.2.0-rc.1)
+   - Features:
+     - Native rendering on Android, iOS, and Web
+     - Web-inspired design (CSS and React-like)
+     - High performance multithreaded engine
 
-1. **Database Models**
-   - User Model:
-     - Authentication details
-     - Role information
-     - Personal/business info
-   - Invoice Model:
-     - Invoice number
-     - Customer details
-     - Items and pricing
-     - Payment status
-     - Generated PDF link
+2. **Database**
+   - SQLite
+   - Local storage
+   - Schema design for:
+     - Customers
+     - Invoices
+     - Products/Services
+     - Settings
 
-2. **API Routes**
-   - User Routes:
-     - Registration
-     - Login
-     - Profile management
-   - Invoice Routes:
-     - Create invoice
-     - Generate PDF
-     - Send via email
-     - List/Search invoices
+3. **Additional Technologies**
+   - PDF Generation Library (to be determined)
+   - Email Service Integration
+   - SQLite3 Node.js bindings
 
-3. **Templates**
-   - Invoice Template (EJS):
-     - Professional layout
-     - Dynamic content areas
-     - Styling for PDF output
-   - Email Template:
-     - Professional format
-     - Invoice attachment
-     - Custom message
+## Database Schema
+```sql
+-- Customers table
+CREATE TABLE customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    address TEXT,
+    phone TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-4. **Utilities**
-   - PDF Generation:
-     - html-pdf configuration
-     - Template rendering
-     - File management
-   - Email Service:
-     - SendGrid integration
-     - Template processing
-     - Attachment handling
+-- Invoices table
+CREATE TABLE invoices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER,
+    invoice_number TEXT NOT NULL,
+    issue_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    status TEXT DEFAULT 'pending',
+    total_amount DECIMAL(10,2),
+    pdf_path TEXT,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
 
-### Technology Stack
-- **Backend**: Node.js + Express
-- **Database**: MongoDB with Mongoose
-- **Authentication**: JWT (jsonwebtoken)
-- **PDF Generation**: html-pdf
-- **Email Service**: SendGrid
-- **Template Engine**: EJS
-- **Logging**: Winston
-
-### Key Dependencies
-```json
-{
-  "@sendgrid/mail": "^7.4.5",
-  "bcryptjs": "^2.4.3",
-  "ejs": "^3.1.6",
-  "express": "^4.17.1",
-  "html-pdf": "^3.0.1",
-  "jsonwebtoken": "^8.5.1",
-  "mongoose": "^5.13.5"
-}
+-- Invoice items table
+CREATE TABLE invoice_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    invoice_id INTEGER,
+    description TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+);
 ```
 
 ## Updates Log
@@ -122,4 +98,5 @@ invoice-generator/
 - Initial repository creation
 - Set up basic documentation structure
 - Added invoice generator research and references
-- Added detailed structure breakdown of invoice generator
+- Updated project structure for Lynx framework implementation
+- Defined SQLite database schema
